@@ -1,0 +1,366 @@
+{
+	"info": {
+		"_postman_id": "8e848647-9b3b-4e9b-bbae-422c49ab82ff",
+		"name": "Data Container - Upload File",
+		"description": "This collection uses the following process:\nhttps://release.integrify.com/#/section-admin/process/177f4637-11a8-475c-9789-a6b7bedcd7cb?name=test%20api\n\n",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Impersonate",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "0184e04a-b7d2-4fcc-a335-d55ca0b5cf7c",
+						"exec": [
+							"var jsonData = pm.response.json();",
+							"pm.environment.set(\"access_token\",jsonData.token)",
+							""
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"id": "43b87178-cb6a-464c-8f69-ed05ea6daa44",
+						"exec": [
+							"pm.collectionVariables.set(\"expiration\",(Math.round(Date.now()/1000))+parseInt(pm.collectionVariables.get(\"session_timeout\")));"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{site}}/access/impersonate?key={{api_key}}&user={{username}}",
+					"host": [
+						"{{site}}"
+					],
+					"path": [
+						"access",
+						"impersonate"
+					],
+					"query": [
+						{
+							"key": "key",
+							"value": "{{api_key}}"
+						},
+						{
+							"key": "user",
+							"value": "{{username}}"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Start Request with Data Container task",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "5930f060-fafa-4b92-bd35-6722f55ceb64",
+						"exec": [
+							"var jsonData = pm.response.json();",
+							"pm.collectionVariables.set(\"instance_sid\",jsonData.SID);"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "oauth2",
+					"oauth2": [
+						{
+							"key": "accessToken",
+							"value": "{{access_token}}",
+							"type": "string"
+						},
+						{
+							"key": "addTokenTo",
+							"value": "header",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "key",
+						"value": "",
+						"type": "text",
+						"disabled": true
+					}
+				],
+				"url": {
+					"raw": "{{site}}/instances/{{process_sid}}/start",
+					"host": [
+						"{{site}}"
+					],
+					"path": [
+						"instances",
+						"{{process_sid}}",
+						"start"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get Data Container endpoint",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "9c072e55-5b2a-4f67-a8c9-1368cb908935",
+						"exec": [
+							"var jsonData = pm.response.json();",
+							"pm.collectionVariables.set(\"datacontainer_link\",jsonData.endpoints[0]);"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "oauth2",
+					"oauth2": [
+						{
+							"key": "accessToken",
+							"value": "{{access_token}}",
+							"type": "string"
+						},
+						{
+							"key": "addTokenTo",
+							"value": "header",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{site}}/tasktypes/data-container/endpoints?instance_sid={{instance_sid}}",
+					"host": [
+						"{{site}}"
+					],
+					"path": [
+						"tasktypes",
+						"data-container",
+						"endpoints"
+					],
+					"query": [
+						{
+							"key": "instance_sid",
+							"value": "{{instance_sid}}"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get Data Container layout",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "c2432dc5-7d63-4d3a-9d25-c3eaf37d9154",
+						"exec": [
+							"var jsonData = pm.response.json();",
+							"pm.collectionVariables.set(\"attachment_field\",jsonData.field_configuration[0].key);"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "oauth2",
+					"oauth2": [
+						{
+							"key": "accessToken",
+							"value": "{{access_token}}",
+							"type": "string"
+						},
+						{
+							"key": "addTokenTo",
+							"value": "header",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{site}}{{datacontainer_link}}",
+					"host": [
+						"{{site}}{{datacontainer_link}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Upload a file",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "059f5395-c398-443c-90e5-352b5b0f6bb2",
+						"exec": [
+							"var jsonData = pm.response.json();",
+							"pm.collectionVariables.set(\"file_sid\",jsonData[0].file);"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "oauth2",
+					"oauth2": [
+						{
+							"key": "accessToken",
+							"value": "{{access_token}}",
+							"type": "string"
+						},
+						{
+							"key": "addTokenTo",
+							"value": "header",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "file",
+							"type": "file",
+							"src": "/Users/ebonertz/Documents/PM/Tutorial 1/dummy.txt"
+						}
+					]
+				},
+				"url": {
+					"raw": "{{site}}/files/upload",
+					"host": [
+						"{{site}}"
+					],
+					"path": [
+						"files",
+						"upload"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Post file to Data Container",
+			"request": {
+				"auth": {
+					"type": "oauth2",
+					"oauth2": [
+						{
+							"key": "accessToken",
+							"value": "{{access_token}}",
+							"type": "string"
+						},
+						{
+							"key": "addTokenTo",
+							"value": "header",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"{{attachment_field}}\": \"{{file_guid}}\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{site}}{{datacontainer_link}}",
+					"host": [
+						"{{site}}{{datacontainer_link}}"
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"id": "1813de2f-ee60-430b-bbe8-ef365e0c4dcc",
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"id": "5f15dba8-05a9-449d-980f-c0706a285dd9",
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"id": "544c4914-20fc-47d2-b8f9-ee2d7b65cac9",
+			"key": "process_sid",
+			"value": "a7979f97-dd72-4e13-8d70-256fc415d723",
+			"type": "string"
+		},
+		{
+			"id": "b084b2a4-69e2-446c-9154-b8067c6d3006",
+			"key": "instance_sid",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"id": "af49f2e5-01c1-46b8-a711-e7198ce714db",
+			"key": "file_sid",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"id": "57c49648-8698-480f-a9d8-4e27582c84c0",
+			"key": "datacontainer_link",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"id": "fe376373-e541-4a91-99a8-4ca8fa5df9df",
+			"key": "attachment_field",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"id": "6cf4d6bf-009f-4e86-a95b-e02476d3850a",
+			"key": "expiration",
+			"value": "",
+			"type": "string"
+		}
+	],
+	"protocolProfileBehavior": {}
+}

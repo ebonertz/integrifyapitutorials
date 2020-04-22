@@ -1,0 +1,367 @@
+{
+	"info": {
+		"_postman_id": "f0fae620-ff4e-4230-9443-7715fbf2c627",
+		"name": "Data Container - Upload File",
+		"description": "This collection uses the following process:\nhttps://release.integrify.com/#/section-admin/process/177f4637-11a8-475c-9789-a6b7bedcd7cb?name=test%20api\n\n",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Impersonate",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "88a7e3a6-b7e7-48ad-b3aa-eb4b9fe6f59d",
+						"exec": [
+							"var jsonData = pm.response.json();",
+							"pm.collectionVariables.set(\"token\",jsonData.token)"
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"id": "731fdfd4-6991-46ef-abb9-eb00e9112e64",
+						"exec": [
+							"pm.collectionVariables.set(\"expiration\",(Math.round(Date.now()/1000))+parseInt(pm.collectionVariables.get(\"session_timeout\")));"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{site}}/access/impersonate?key={{api_key}}&user={{username}}&expires={{expiration}}",
+					"host": [
+						"{{site}}"
+					],
+					"path": [
+						"access",
+						"impersonate"
+					],
+					"query": [
+						{
+							"key": "key",
+							"value": "{{api_key}}"
+						},
+						{
+							"key": "user",
+							"value": "{{username}}"
+						},
+						{
+							"key": "expires",
+							"value": "{{expiration}}"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Start Request with Data Container task",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "5930f060-fafa-4b92-bd35-6722f55ceb64",
+						"exec": [
+							"var jsonData = pm.response.json();",
+							"pm.collectionVariables.set(\"instance_guid\",jsonData.SID);"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [],
+				"url": {
+					"raw": "{{site}}/instances/{{process_guid}}/start",
+					"host": [
+						"{{site}}"
+					],
+					"path": [
+						"instances",
+						"{{process_guid}}",
+						"start"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get Data Container endpoint",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "9c072e55-5b2a-4f67-a8c9-1368cb908935",
+						"exec": [
+							"var jsonData = pm.response.json();",
+							"pm.collectionVariables.set(\"datacontainer_link\",jsonData.endpoints[0]);"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{site}}/tasktypes/data-container/endpoints?instance_sid={{instance_guid}}",
+					"host": [
+						"{{site}}"
+					],
+					"path": [
+						"tasktypes",
+						"data-container",
+						"endpoints"
+					],
+					"query": [
+						{
+							"key": "instance_sid",
+							"value": "{{instance_guid}}"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get Data Container layout",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "c2432dc5-7d63-4d3a-9d25-c3eaf37d9154",
+						"exec": [
+							"var jsonData = pm.response.json();",
+							"pm.collectionVariables.set(\"attachment_field\",jsonData.field_configuration[0].key);"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{site}}{{datacontainer_link}}",
+					"host": [
+						"{{site}}{{datacontainer_link}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Upload a file",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "059f5395-c398-443c-90e5-352b5b0f6bb2",
+						"exec": [
+							"var jsonData = pm.response.json();",
+							"pm.collectionVariables.set(\"file_guid\",jsonData[0].file);"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "file",
+							"type": "file",
+							"src": "/home/danj/pCloudDrive/Integrify/dummy uploads/dummy.txt"
+						}
+					]
+				},
+				"url": {
+					"raw": "{{site}}/files/upload",
+					"host": [
+						"{{site}}"
+					],
+					"path": [
+						"files",
+						"upload"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Post file to Data Container",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"{{attachment_field}}\": \"{{file_guid}}\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{site}}{{datacontainer_link}}",
+					"host": [
+						"{{site}}{{datacontainer_link}}"
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"id": "1813de2f-ee60-430b-bbe8-ef365e0c4dcc",
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"id": "5f15dba8-05a9-449d-980f-c0706a285dd9",
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"id": "c4503eb8-572e-4d61-b78f-0ae5ade489e5",
+			"key": "site",
+			"value": "Enter site with protocol (https://site.domain.)",
+			"type": "string"
+		},
+		{
+			"id": "cabbbb2e-d24a-49cc-8af4-06152e5eaec6",
+			"key": "api_key",
+			"value": "Enter the API key for Integrify",
+			"type": "string"
+		},
+		{
+			"id": "a60f0c1f-c513-43fc-9559-d64fae0fe378",
+			"key": "username",
+			"value": "Enter the username you wan to impersonate as",
+			"type": "string"
+		},
+		{
+			"id": "144549e8-bae7-4dba-9849-f7e687c71cac",
+			"key": "expiration",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"id": "a6463fb8-fb23-4763-9f96-26db944c5b0c",
+			"key": "token",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"id": "03aa18b8-3636-4b4b-a2e8-10376702382e",
+			"key": "process_guid",
+			"value": "Enter the guid of the process to be run",
+			"type": "string"
+		},
+		{
+			"id": "7b72c5f5-4ed0-43ad-a4a6-eed7095ba075",
+			"key": "instance_guid",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"id": "c0c3ec0b-c401-4557-92e7-56657a1b6969",
+			"key": "datacontainer_link",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"id": "892336ea-6ac1-47b9-954d-c0359131cd7e",
+			"key": "attachment_field",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"id": "cf18e527-24b2-4c2c-9e4b-94aead03fc30",
+			"key": "file_guid",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"id": "ade740eb-01d9-4993-9d09-e338a7d789df",
+			"key": "session_timeout",
+			"value": "120",
+			"type": "string"
+		}
+	],
+	"protocolProfileBehavior": {}
+}
