@@ -27,7 +27,20 @@ In Postman Create a new Environment for your Integrify Project
 
 https://learning.postman.com/docs/postman/collection-runs/using-environments-in-collection-runs/
 
+We recommend saving your variables at the environment level but you also have the option to use collection level variables or global variables
+
 Your Environment in Postman should look like this
+
+The required variables are as follows:
+
+site: <https://mysite.integrify.com>
+
+api_key: <mysite_api> (this is usually just your site name followed my "_api")
+
+secret: <my_secret> (for v7 this secret mus be obtained from support@integrify.com)
+
+username: <my_username>
+
 ![Environment Variables](images/evss.png)
 
 ## Obtain your Access Token
